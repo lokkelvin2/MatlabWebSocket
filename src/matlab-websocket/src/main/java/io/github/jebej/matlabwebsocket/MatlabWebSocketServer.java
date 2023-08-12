@@ -1,5 +1,6 @@
 package io.github.jebej.matlabwebsocket;
 
+import java.net.InetAddress;
 import java.net.InetSocketAddress;
 import java.nio.ByteBuffer;
 import java.util.ArrayList;
@@ -13,10 +14,22 @@ import org.java_websocket.framing.PongFrame;
 import org.java_websocket.enums.Opcode;
 
 public class MatlabWebSocketServer extends WebSocketServer {
-    // The constructor creates a new WebSocketServer with the wildcard IP,
-    // accepting all connections on the specified port
+    
+    /**
+     *  Creates a new WebSocketServer with the loopback address.
+     * @param port
+     */
     public MatlabWebSocketServer( int port ) {
-        super( new InetSocketAddress( port ) );
+        super( new InetSocketAddress( InetAddress.getLoopbackAddress(), port ) );
+    }
+
+    /**
+     * Creates a new WebSocketServer from a hostname and port number.
+     * @param hostname
+     * @param port
+     */
+    public MatlabWebSocketServer( String hostname, int port ) {
+        super( new InetSocketAddress( hostname, port ) );
     }
 
     // Server start
