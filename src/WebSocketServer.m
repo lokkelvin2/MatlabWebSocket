@@ -16,6 +16,7 @@ classdef WebSocketServer < handle
     %   these callback methods.
     
     properties (SetAccess = private)
+        Hostname = 'localhost' % Address of the WebSocket server
         Port % Server port
         Secure = false % True if the server is a secure websocket server
         Status = false % Server status
@@ -30,17 +31,35 @@ classdef WebSocketServer < handle
     end
     
     methods
-        function obj = WebSocketServer(port,keyStore,storePassword,keyPassword)
+        function obj = WebSocketServer(varargin)
+        % WEBSOCKETSERVER object
+        %
+        %   Creates a new WebSocketServer object.
+        %
+        %   Syntax:
+        %       obj = WebSocketServer(varargin)
+        %
+        %   WebSocketServer(port)
+        %   WebSocketServer(hostname,port)
+        %   WebSocketServer(hostname,port,keyStore,storePassword,keyPassword)
+            
             % Constructor
-            obj.Port = port;
-            if nargin == 4
+            if nargin == 1
+                obj.Port = varargin{1};
+            elseif nargin == 2
+                obj.Hostname = varargin{1};
+                obj.Port = varargin{2};
+            elseif nargin == 5
+                obj.Hostname = varargin{1};
+                obj.Port = varargin{2};
                 obj.Secure = true;
-                obj.KeyStore = keyStore;
-                obj.StorePassword = storePassword;
-                obj.KeyPassword = keyPassword;
-            elseif nargin ~= 1
-                error('Invalid number of arguments for secure connection with keystore!');
+                obj.KeyStore = varargin{3};
+                obj.StorePassword = varargin{4};
+                obj.KeyPassword = varargin{5};
+            else
+                error('Invalid number of arguments!');
             end
+
             % Start server
             obj.start();
         end
@@ -54,7 +73,12 @@ classdef WebSocketServer < handle
                 obj.ServerObj = handle(MatlabWebSocketSSLServer(obj.Port,...
                     obj.KeyStore,obj.StorePassword,obj.KeyPassword),'CallbackProperties');
             else
-                obj.ServerObj = handle(MatlabWebSocketServer(obj.Port),'CallbackProperties');
+                switch obj.Hostname
+                    case {'localhost', 'LOCALHOST', '127.0.0.1'}
+                        obj.ServerObj = handle(MatlabWebSocketServer(obj.Port),'CallbackProperties');
+                    otherwise
+                        obj.ServerObj = handle(MatlabWebSocketServer(obj.Hostname, obj.Port),'CallbackProperties');
+                end        
             end
             % Set callbacks
             set(obj.ServerObj,'OpenCallback',@obj.openCallback);
