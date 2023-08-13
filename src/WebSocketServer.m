@@ -86,6 +86,8 @@ classdef WebSocketServer < handle
             set(obj.ServerObj,'BinaryMessageCallback',@obj.binaryMessageCallback);
             set(obj.ServerObj,'ErrorCallback',@obj.errorCallback);
             set(obj.ServerObj,'CloseCallback',@obj.closeCallback);
+            % Set 
+            obj.ServerObj.setReuseAddr(true); % Note of https://stackoverflow.com/a/3233022
             % Start the server
             obj.ServerObj.start();
             obj.Status = true;
